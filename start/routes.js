@@ -20,5 +20,6 @@ Route.get('/', () => {
   return { greeting: 'Hello world in JSON' }
 })
 
-Route.get('/pruebas', 'BancaController.pruebas');
+Route.post('/pruebas', 'BancaController.pruebas');
 Route.post('/registrar', 'BancaController.registrar');
+Route.post('/login', 'BancaController.login');

@@ -3,22 +3,17 @@ const Cuentahabiente = use('App/Models/Cuentahabiente');
 
 class BancaController {
 
-    async pruebas(response){
-        try{
-            let cadena = "";
-            for (let index = 0; index < 4; index++) {
-                let numero = Math.floor(Math.random() * 10) + 1;
-                if(numero==10){
-                    numero=numero-9;
-                    cadena+=numero;
-                }
-                else{
-                    cadena+=numero;
-                }
+    async pruebas({request, response, auth}){
+        try {
+            const tarjeta=request.input('tarjeta');
+            const password=request.input('password');
+            try {
+                let token = await auth.attempt(tarjeta, password);
+                return response.json(token);
+            } catch (error) {
+                return response.status(444).json(error);
             }
-            return cadena;
-        }
-        catch(error){
+        } catch (error) {
             return response.json(error);
         }
     }
@@ -48,6 +43,17 @@ class BancaController {
             await CA.save();
             return response.json(CA);
             
+        } catch (error) {
+            return response.json(error);
+        }
+    }
+
+    async login({request, response, auth}){
+        try {
+            const tarjeta=request.input('tarjeta');
+            const password=request.input('password');
+            let token = await auth.attempt(tarjeta, password);
+            return response.json(token);
         } catch (error) {
             return response.json(error);
         }
