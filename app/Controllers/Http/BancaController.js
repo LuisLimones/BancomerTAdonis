@@ -1,21 +1,15 @@
 'use strict'
 const Cuentahabiente = use('App/Models/Cuentahabiente');
+const Movimiento = use('App/Models/Movimiento');
 
 class BancaController {
 
     async pruebas({request, response, auth}){
-        try {
-            const tarjeta=request.input('tarjeta');
-            const password=request.input('password');
-            try {
-                let token = await auth.attempt(tarjeta, password);
-                return response.json(token);
-            } catch (error) {
-                return response.status(444).json(error);
-            }
-        } catch (error) {
-            return response.json(error);
-        }
+        let numero1 = parseFloat(request.input('numero1'));
+        let ca = await Cuentahabiente.findBy('tarjeta', '7918');
+        let numero2 = parseFloat(ca.fondos);
+        let numero3 = numero1+numero2;
+        return response.json(numero3);
     }
 
     async registrar({request, response}){
@@ -59,6 +53,43 @@ class BancaController {
         }
     }
 
+    async pagos({request, response, auth}){
+        try {
+            const mov = new Movimiento();
+            let ca1 = await auth.getUser();
+            let tipo = request.input('tipo');
+            let receptor = request.input('receptor');
+            let cantidad = parseFloat(request.input('cantidad'));
+            let concepto = request.input('concepto');
+            let ca2 = await Cuentahabiente.findBy('tarjeta', receptor);
+            if(parseFloat(ca1.fondos)>cantidad){
+                mov.concepto = concepto;
+                mov.abonante = ca1.id;
+                mov.receptor = ca2.id;
+                mov.tipo = tipo;
+                mov.cantidad = cantidad;
+                await mov.save();
+                let fondos1=parseFloat(ca1.fondos)-cantidad;
+                await Cuentahabiente.query().where('tarjeta', ca1.tarjeta).update({fondos: fondos1});
+                let fondos2=parseFloat(ca2.fondos)+cantidad;
+                await Cuentahabiente.query().where('tarjeta', ca2.tarjeta).update({fondos: fondos2});
+                return response.json(mov);
+            }
+            else{
+                return response.json({'fondos': "Fondos Insificientes"})
+            }
+        } catch (error) {
+            return response.json(error)
+        }
+    }
+
+    async cuentahabiente({response, auth}){
+        try {
+            return await auth.getUser();
+        } catch (error) {
+            return response.json(error);
+        }
+    }
 }
 
 module.exports = BancaController
