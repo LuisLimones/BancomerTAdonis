@@ -5,6 +5,7 @@ const Database = use('Database');
 
 class BancaController {
 
+    //Pruebas de controlador
     async pruebas({request, response, auth}){
         let numero1 = parseFloat(request.input('numero1'));
         let ca = await Cuentahabiente.findBy('tarjeta', '7918');
@@ -13,6 +14,7 @@ class BancaController {
         return response.json(numero3);
     }
 
+    //Registrar Cuentahabiente
     async registrar({request, response}){
         try {
             const CA = new Cuentahabiente();
@@ -43,6 +45,7 @@ class BancaController {
         }
     }
 
+    //Login
     async login({request, response, auth}){
         try {
             const tarjeta=request.input('tarjeta');
@@ -54,6 +57,7 @@ class BancaController {
         }
     }
 
+    //Registro y actualizaciones correspondientes de pagos y movimientos
     async pagos({request, response, auth}){
         try {
             const mov = new Movimiento();
@@ -84,6 +88,7 @@ class BancaController {
         }
     }
 
+    //Obtiene el Cuentahabiente actual por medio de Auth (jwt)
     async cuentahabiente({response, auth}){
         try {
             return await auth.getUser();
@@ -92,6 +97,7 @@ class BancaController {
         }
     }
 
+    //Obtiene los Movimientos del Cuentahabiente logeado
     async movimientos({response, auth}){
         try {
             let ca = await auth.getUser();
@@ -104,6 +110,31 @@ class BancaController {
             
         } catch (error) {
             return response.json(error);
+        }
+    }
+    
+    async check({response, auth}){
+        try {
+            let ca = await auth.getUser();
+            if(ca.id>0){
+                return response.json({respuesta: "true"});
+            }
+            else {return response.json({respuest: "false"})};
+        } catch (error) {
+            return response.json({respuest: "false"});
+        }
+    }
+
+    //Verifica Permiso De Administrador Para Registro
+    async administrador({response, auth}){
+        try {
+            let ca = await auth.getUser();
+            if(ca.tipo =="Admin"){
+                return response.json({respuesta: "true"});
+            }
+            else{ return response.json({respuesta: "false"}); }
+        } catch (error) {
+            return response.json({respuesta: "false"});
         }
     }
 }
