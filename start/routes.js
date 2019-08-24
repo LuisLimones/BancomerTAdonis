@@ -29,3 +29,4 @@ Route.get('/actual', 'BancaController.cuentahabiente');
 Route.post('/registrar', 'BancaController.registrar');
 Route.post('/login', 'BancaController.login');
 Route.post('/pagos', 'BancaController.pagos');
+Route.post('/movimientos', 'BancaController.movimientos');

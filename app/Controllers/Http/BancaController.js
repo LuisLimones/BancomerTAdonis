@@ -1,6 +1,7 @@
 'use strict'
 const Cuentahabiente = use('App/Models/Cuentahabiente');
 const Movimiento = use('App/Models/Movimiento');
+const Database = use('Database');
 
 class BancaController {
 
@@ -86,6 +87,21 @@ class BancaController {
     async cuentahabiente({response, auth}){
         try {
             return await auth.getUser();
+        } catch (error) {
+            return response.json(error);
+        }
+    }
+
+    async movimientos({response, auth}){
+        try {
+            let ca = await auth.getUser();
+            let movimientos = await Database
+            .raw('select m.id, m.concepto, c.nombre as abonante, d.nombre as receptor, m.tipo, m.cantidad,'+
+            ' m.created_at from movimientos as m join cuentahabientes as c on m.abonante = c.id'+
+            ' join cuentahabientes as d on m.receptor = d.id where c.nombre = ? or d.nombre= ?', 
+            [ca.nombre, ca.nombre]);
+            return response.json(movimientos.rows);
+            
         } catch (error) {
             return response.json(error);
         }
