@@ -34,4 +34,5 @@ Route.get('checkLogin', 'BancaController.check');
 Route.get('/checkAdmin', 'BancaController.administrador');
 
 //Android
-Route.post('/android', 'BancaController.loginAndroid');
+Route.post('/loginAndroid', 'BancaController.loginAndroid');
+Route.post('/movimientosAndroid', 'BancaController.movimientosAndroid');

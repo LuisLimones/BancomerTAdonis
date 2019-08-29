@@ -159,6 +159,20 @@ class BancaController {
             return response.json(error)
         }
     }
+
+    async movimientosAndroid({request, response}){
+        try {
+            const ca = await Cuentahabiente.findBy('tarjeta', request.input('tarjeta'));
+            let movimientos = await Database
+            .raw('select m.id, m.concepto, c.nombre as abonante, d.nombre as receptor, m.tipo, m.cantidad,'+
+            ' m.created_at from movimientos as m join cuentahabientes as c on m.abonante = c.id'+
+            ' join cuentahabientes as d on m.receptor = d.id where c.nombre = ? or d.nombre= ? order by m.id DESC', 
+            [ca.nombre, ca.nombre]);
+            return response.json(movimientos.rows);
+        } catch (error) {
+            return response.json(error);
+        }
+    }
 }
 
 module.exports = BancaController
