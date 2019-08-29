@@ -2,6 +2,7 @@
 const Cuentahabiente = use('App/Models/Cuentahabiente');
 const Movimiento = use('App/Models/Movimiento');
 const Database = use('Database');
+const Hash = use('Hash');
 
 class BancaController {
 
@@ -78,7 +79,12 @@ class BancaController {
                 await Cuentahabiente.query().where('tarjeta', ca1.tarjeta).update({fondos: fondos1});
                 let fondos2=parseFloat(ca2.fondos)+cantidad;
                 await Cuentahabiente.query().where('tarjeta', ca2.tarjeta).update({fondos: fondos2});
-                return response.json(mov);
+                let movimientos = await Database
+                                .raw('select m.id, m.concepto, c.nombre as abonante, d.nombre as receptor, m.tipo, m.cantidad,'+
+                                ' m.created_at from movimientos as m join cuentahabientes as c on m.abonante = c.id'+
+                                ' join cuentahabientes as d on m.receptor = d.id where c.nombre = ? or d.nombre= ? order by m.id DESC', 
+                                [ca2.nombre, ca2.nombre]);
+            return response.json(movimientos.rows);
             }
             else{
                 return response.json({'fondos': "Fondos Insificientes"})
@@ -104,7 +110,7 @@ class BancaController {
             let movimientos = await Database
             .raw('select m.id, m.concepto, c.nombre as abonante, d.nombre as receptor, m.tipo, m.cantidad,'+
             ' m.created_at from movimientos as m join cuentahabientes as c on m.abonante = c.id'+
-            ' join cuentahabientes as d on m.receptor = d.id where c.nombre = ? or d.nombre= ?', 
+            ' join cuentahabientes as d on m.receptor = d.id where c.nombre = ? or d.nombre= ? order by m.id DESC', 
             [ca.nombre, ca.nombre]);
             return response.json(movimientos.rows);
             
@@ -135,6 +141,22 @@ class BancaController {
             else{ return response.json({respuesta: "false"}); }
         } catch (error) {
             return response.json({respuesta: "false"});
+        }
+    }
+
+    async loginAndroid({request, response, auth}){
+        try {
+            let tarjeta = request.input('tarjeta');
+            let password = request.input('password');
+            const ca = await auth.attempt(tarjeta, password);
+            if(ca.token){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (error) {
+            return response.json(error)
         }
     }
 }
