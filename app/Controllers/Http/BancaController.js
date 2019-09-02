@@ -144,6 +144,7 @@ class BancaController {
         }
     }
 
+    //Android
     async loginAndroid({request, response, auth}){
         try {
             let tarjeta = request.input('tarjeta');
@@ -156,7 +157,7 @@ class BancaController {
                 return false;
             }
         } catch (error) {
-            return response.json(error)
+            return "error";
         }
     }
 

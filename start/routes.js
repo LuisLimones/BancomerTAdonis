@@ -30,7 +30,7 @@ Route.post('/registrar', 'BancaController.registrar');
 Route.post('/login', 'BancaController.login');
 Route.post('/pagos', 'BancaController.pagos');
 Route.get('/movimientos', 'BancaController.movimientos');
-Route.get('checkLogin', 'BancaController.check');
+Route.get('/checkLogin', 'BancaController.check');
 Route.get('/checkAdmin', 'BancaController.administrador');
 
 //Android
